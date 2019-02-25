@@ -153,7 +153,7 @@ def exprToFA(expr_list):
 ##star(fa)
 ##fa.show()
 
-#########################TEST_JOIN
+#########################TEST_JOIN (aab)(a)
 ##expr = ['a','a','b']
 ##expr2 = ['a']
 ##fa = FA({0}, set(), {} , 0, {0})
