@@ -55,7 +55,7 @@ def join(mainFA,joinFA):
 
     #update delta of subFA
     for i in subFA.delta:
-        new_delta[(i[0] + num_state, i[1])] = {list(subFA.delta[i])[0] + num_state}
+        new_delta[(i[0] + num_state, i[1])] = {j + num_state for j in subFA.delta[i]}
     subFA.delta = new_delta
     #update all attr of SubFA
     subFA.q0 += num_state
@@ -236,3 +236,17 @@ def exprToFA(expr_list):
 ##expr = ['a','a','|','b','b']
 ##out_fa = exclusiveOr(expr)
 ##out_fa.show()
+
+###########################TEST ExclusiveOR (12*2)
+expr = ['2']
+fa = exprToFA(expr)
+fa.show()
+
+expr2 = [fa,'*']
+fa2 = exprToFA(expr2)
+fa2.show()
+
+expr3 = ['1',fa2,'2']
+fa3 = exprToFA(expr3)
+fa3.show()
+

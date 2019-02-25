@@ -19,12 +19,12 @@ class Stack:
 
 
 if __name__ == "__main__":
-#    regex_expr = "12*2"
+    regex_expr = "12*2"
 #    regex_expr = "1(12*3|11)12(14)*"
 #    regex_expr = "(0|1|2|3|4|5|6|7|8|9)|(1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*"
 #    regex_expr = "(0|1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*.|.(0|1|2|3|4|5|6||8|9)(0|1|2|3|4|5|6|7|8|9)*|(0|1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*.(0|1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*"
 #    regex_expr = "(123)12"
-    regex_expr = "(12*333)*5(1|2)"
+#    regex_expr = "(12*333)*5(1|2)"
 
     regex_expr = '('+ regex_expr + ')'
     print("original regex  :  " + regex_expr)
@@ -62,6 +62,7 @@ if __name__ == "__main__":
             while(char != '('):
                 expr_temp = [char] + expr_temp
                 char = stack.pop()
+            print(expr_temp)
                 
             sub_fa["FA(" + str(sub_num) + ')'] = expr_temp
             root_ref = "FA(" + str(sub_num) + ')'
@@ -73,6 +74,7 @@ if __name__ == "__main__":
         elif(expr[index] == '*'): #case '*'
             char = stack.pop()
             expr_temp = [char] + expr_temp + ['*']
+            print(expr_temp)
             
             sub_fa["FA(" + str(sub_num) + ')'] = expr_temp
             root_ref = "FA(" + str(sub_num) + ')'
