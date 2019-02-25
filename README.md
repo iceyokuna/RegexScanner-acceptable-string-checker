@@ -1,0 +1,1 @@
+# RegexScanner-acceptable-string-checker
