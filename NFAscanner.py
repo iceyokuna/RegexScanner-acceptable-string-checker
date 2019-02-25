@@ -152,7 +152,7 @@ def exprToFA(expr_list):
     if('*' in expr_list):
         return star(expr_list[0])
     elif('|' in expr_list):
-        return exclusiveOr(fa, expr_list)
+        return exclusiveOr(expr_list)
     
     for char in expr_list:
         if(type(char) == type(FA())):
@@ -201,9 +201,10 @@ def getFA(regex_expr):
                 
             sub_fa["FA(" + str(sub_num) + ')'] = expr_temp
             root_ref = "FA(" + str(sub_num) + ')'
+            fa = exprToFA(expr_temp)
             if(len(stack) != 0):
-                stack.push(root_ref)
-            print(expr_temp)
+                stack.push(fa)
+            print(root_ref + "  :  " + str(expr_temp))
             expr_temp = []
             sub_num += 1
 
@@ -212,15 +213,16 @@ def getFA(regex_expr):
             expr_temp = [char] + expr_temp + ['*']
             sub_fa["FA(" + str(sub_num) + ')'] = expr_temp
             root_ref = "FA(" + str(sub_num) + ')'
-            stack.push(root_ref)
-            print(expr_temp)
+            fa = exprToFA(expr_temp)
+            stack.push(fa)
+            print(root_ref + "  :  " + str(expr_temp))
             expr_temp = []
             sub_num += 1
             
         else:
             stack.push(expr[index])
         index += 1
-    return sub_fa
+    return exprToFA(sub_fa[root_ref])
     
 #########################TEST_CONCAT
 ##expr = ['a','a','b']
@@ -318,6 +320,14 @@ def getFA(regex_expr):
 ##out_fa = exclusiveOr(expr)
 ##out_fa.show()
 
+#expr = "(0|1)|(1)*"
+##fa = exprToFA(['0','|','1'])
+##fa2 = exprToFA(['1'])
+##fa3= exprToFA([fa2,'*'])
+###[fa,'|',fa3]
+##fa4 = exprToFA([fa,'|',fa3])
+##fa4.show()
+
 ###########################TEST ExclusiveOR (12*2)  #correct
 ##expr = ['2']
 ##fa = exprToFA(expr)
@@ -331,12 +341,21 @@ def getFA(regex_expr):
 ##fa3 = exprToFA(expr3)
 ##fa3.show()
 
-###########################REGEX
-regex_expr = "12*2"
-#    regex_expr = "1(12*3|11)12(14)*"
-#    regex_expr = "(0|1|2|3|4|5|6|7|8|9)|(1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*"
-#    regex_expr = "(0|1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*.|.(0|1|2|3|4|5|6||8|9)(0|1|2|3|4|5|6|7|8|9)*|(0|1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*.(0|1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*"
-#    regex_expr = "(123)12"
-#    regex_expr = "(12*333)*5(1|2)"
+###########################   REGEX  FINAL SYSTEM TESTING
+
+#regex_expr = "12*2" #correct
+#regex_expr = "(123)12" #correct
+#regex_expr ="aa|bb" #correct
+#regex_expr = "1(12*3|11)12(14)*"
+#regex_expr = "(0|1)|(1)*"
+#regex_expr = "(0|1|2|3|4|5|6|7|8|9)|(1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)"
+#regex_expr = "(0|1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*.|.(0|1|2|3|4|5|6||8|9)(0|1|2|3|4|5|6|7|8|9)*|(0|1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*.(0|1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*"
+#regex_expr = "(12*333)*5(1|2)"
+#regex_expr = "1(1|2)2*"
+#regex_expr = "(1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*"
+#regex_expr = "(a|bc)"
+
+regex_expr = "1|(1|2)(0|1|2)"
+
 fa = getFA(regex_expr)
-print(fa)
+fa.show()
