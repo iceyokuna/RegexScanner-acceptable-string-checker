@@ -226,5 +226,54 @@ def getFA(regex_expr):
         index += 1
     return exprToFA(sub_fa[root_ref]).copy()
 
+def tokenize(faList, string):
+    acceptList = []
+    rejectedList = []
+    tokenizeList = []
+    temp = string[0]
+    #push start accept fa
+    for fa in faList:
+        if(fa.accept(temp)):
+            acceptList.append(fa)
+            
+    #loop find token
+    temp_list = acceptList.copy()
+    rejected = None
+    for i in range(1, len(string),1):
+        char = string[i]
+        temp += char #string for token
+        for j in range(len(acceptList)):
+            if(acceptList[j] in rejectedList):
+                continue
+            if(acceptList[j].accept(temp) == False):
+                rejectedList.append(acceptList[j])
+            #reset to current point and continue tokenize the least of string
+            if(len(rejectedList) == len(acceptList)):
+                tokenizeList.append((rejected.name, temp[0:-1]))
+                temp_list = []
+                #update acceptList
+                for fa in faList:
+                    if(fa.accept(string[i])):
+                        temp_list.append(fa)
+                rejectedList = []
+                temp = string[i]
+        acceptList = temp_list.copy()
+    for fa in faList:
+        if(fa.accept(temp) == True):
+            tokenizeList.append((fa.name,temp))
+                                
+    return tokenizeList
+    
 
 
+#change to read from file
+int_fa = getFA("(0|1|2|3|4|5|6|7|8|9)|(1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*")
+int_nfa = NFA(int_fa.Q, int_fa.Sigma, int_fa.delta, int_fa.q0, int_fa.F)
+int_nfa.name = "int"
+
+float_fa = getFA("(0|1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*.|.(0|1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*|(0|1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*.(0|1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*")
+float_nfa = NFA(float_fa.Q, float_fa.Sigma, float_fa.delta, float_fa.q0, float_fa.F)
+float_nfa.name = "float"
+
+tokenize_list = tokenize([int_nfa, float_nfa], '1212.12')
+print(tokenize_list)

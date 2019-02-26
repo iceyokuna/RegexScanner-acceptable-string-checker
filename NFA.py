@@ -1,5 +1,6 @@
 class NFA:
   def __init__(self, Q, Sigma, delta, q0, F):
+    self.name = ""
     self.Q = Q          # set of states
     self.Sigma = Sigma  # alphabet (set of input characters)
     self.delta = delta  # transition function
@@ -12,6 +13,9 @@ class NFA:
       for c in Sigma: # for each character
         if (q,c) not in delta:
           delta[(q,c)] = {'err'}
+
+  def setName(self, name):
+    self.name = name
 
   def closure(self, q):
     working_set = {q}
@@ -27,6 +31,9 @@ class NFA:
     return reached
 
   def accept(self, string):
+    for c in string:
+      if(c not in self.Sigma):
+        return False
     current_states = self.closure(self.q0)    # start from closure of the starting state
     for c in string:
       next_states = set()                     # possible next state
