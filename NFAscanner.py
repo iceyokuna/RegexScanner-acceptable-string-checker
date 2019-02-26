@@ -1,3 +1,5 @@
+from NFA import *
+
 class FA:
     def __init__(self, Q = {0}, Sigma = set(), delta = {}, q0 = 0, F = {0}):
         self.Q = Q
@@ -46,7 +48,7 @@ def concat(fa, char):
     out_fa.Sigma.add(char)
     out_fa.delta[(list(out_fa.F)[0], char)] = {new_state}
     out_fa.F = {new_state}
-    return out_fa
+    return out_fa.copy()
 
 
 def star(fa):
@@ -63,7 +65,7 @@ def star(fa):
     out_fa.Q.add(new_end_state)
     out_fa.q0 = new_start_state
     out_fa.F = {new_end_state}
-    return out_fa
+    return out_fa.copy()
 
 def join(mainFA,joinFA):
     #re name subFA
@@ -89,7 +91,7 @@ def join(mainFA,joinFA):
     fa.delta[(list(fa.F)[0], '')] = {subFA.q0} #add empty move to join 2 FA
     fa.delta = {**fa.delta, **subFA.delta} #combine dict
     fa.F = subFA.F #set new end
-    return fa
+    return fa.copy()
 
 def exclusiveOr(expr):
     exclusiveList = []
@@ -119,7 +121,7 @@ def exclusiveOr(expr):
         
         #update delta of subFA
         for i in subFA.delta:
-            new_delta[(i[0] + counter, i[1])] = {list(subFA.delta[i])[0] + counter}
+            new_delta[(i[0] + counter, i[1])] = {j + counter for j in subFA.delta[i]}
         subFA.delta = new_delta
         
         #update all attr of SubFA
@@ -143,7 +145,7 @@ def exclusiveOr(expr):
         fa.delta[(end,'')] = {counter}
     fa.F = {counter}
 
-    return fa
+    return fa.copy()
 
 
 #simple expr to FA (convert sub expr to sub fa)
@@ -159,13 +161,13 @@ def exprToFA(expr_list):
             fa = join(fa,char)
         else:
             fa = concat(fa, char)
-    return fa
+    return fa.copy()
 
 
 # get NFA from regex_expr
 def getFA(regex_expr):
     regex_expr = '('+ regex_expr + ')'
-    print("original regex  :  " + regex_expr)
+#    print("original regex  :  " + regex_expr)
 
     #pre process (to mange * ,change char* to (char)*)
     temp_regex_expr = ""
@@ -176,7 +178,7 @@ def getFA(regex_expr):
         else:
             temp_regex_expr += regex_expr[i]
     regex_expr = temp_regex_expr
-    print("Pre-process regex  :  " + regex_expr)
+#    print("Pre-process regex  :  " + regex_expr)
     
     #change regex to list of char in order to insert sub FA (FA object references)
     expr = list(regex_expr) #read char by char O(n)
@@ -204,7 +206,7 @@ def getFA(regex_expr):
             fa = exprToFA(expr_temp)
             if(len(stack) != 0):
                 stack.push(fa)
-            print(root_ref + "  :  " + str(expr_temp))
+#            print(root_ref + "  :  " + str(expr_temp))
             expr_temp = []
             sub_num += 1
 
@@ -215,147 +217,94 @@ def getFA(regex_expr):
             root_ref = "FA(" + str(sub_num) + ')'
             fa = exprToFA(expr_temp)
             stack.push(fa)
-            print(root_ref + "  :  " + str(expr_temp))
+#            print(root_ref + "  :  " + str(expr_temp))
             expr_temp = []
             sub_num += 1
             
         else:
             stack.push(expr[index])
         index += 1
-    return exprToFA(sub_fa[root_ref])
-    
-#########################TEST_CONCAT
-##expr = ['a','a','b']
-##fa = FA()
-##for char in expr:
-##    concat(fa, char)
-##fa.show()
-
-#########################TEST_STAR *
-##fa = FA({0, 1, 2, 3}, {'a', 'b'}, {(0, 'a'): {1}, (1, 'a'): {2}, (2, 'b'): {3}}, 0, {3})
-##star(fa)
-##fa.show()
-
-#########################TEST_JOIN (aab)(a)
-##expr = ['a','a','b']
-##expr2 = ['a']
-##fa = FA({0}, set(), {} , 0, {0})
-##fa2 = FA({0}, set(), {} , 0, {0})
-##
-##for char in expr:
-##    fa = concat(fa, char)
-##for char in expr2:
-##    fa2 = concat(fa2, char)
-##fa.show()
-##fa2.show()
-##
-##fa = join(fa,fa2)
-##
-##fa.show()
+    return exprToFA(sub_fa[root_ref]).copy()
 
 
-###########################TEST ALL 1
-##expr = ['a','b']
-##expr2 = ['c','c']
-##
-##fa = FA()
-##
-##for char in expr:
-##    concat(fa, char)
-##star(fa)
-##
-##for char in expr2:
-##    concat(fa, char)
-##    
-##fa.show()
-
-###########################TEST ALL 2
-##expr = ['a','b']
-##expr2 = ['c','c']
-##
-##fa = FA({0}, set(), {} , 0, {0})
-##fa2 = FA({0}, set(), {} , 0, {0})
-##
-##for char in expr:
-##    concat(fa, char)
-##star(fa)
-##
-##for char in expr2:
-##    concat(fa2, char)
-##
-##fa = join(fa,fa2)
-##    
-##fa.show()
-
-###########################TEST ExclusiveOR (tokenize)
-##expr = ['a','s','|','b','c','|','c','c']
-##exclusiveOr(expr)
+##regex = "ab*|(c|d)|(ef)*"
+##fa = getFA(regex)
+##N = NFA(fa.Q, fa.Sigma, fa.delta, fa.q0, fa.F)
+##print("True casese")
+##print(N.accept('a'))
+##print(N.accept('ab'))
+##print(N.accept('abbbbb'))
+##print(N.accept('c'))
+##print(N.accept('d'))
+##print(N.accept(''))
+##print(N.accept('ef'))
+##print(N.accept('efef'))
+##print()
+##print("False casese")
+##print(N.accept('aba'))
+##print(N.accept('b'))
+##print(N.accept('cd'))
+##print(N.accept('abab'))
+##print(N.accept('efe'))
 
 
-###########################TEST construct FA from sub expr -> (abc)* #correct
-##expr = ['a','b','c']
-##fa = exprToFA(expr)
-##fa.show()
-##fa2 = exprToFA([fa,'*'])
-##fa2.show()
+##regex = "(ab(ab*(a(ab|c(abc)c)c)c)c)"
+##fa = getFA(regex)
+##N = NFA(fa.Q, fa.Sigma, fa.delta, fa.q0, fa.F)
+##print("True casese")
+##print(N.accept('abaacabccccc'))
+##print(N.accept('ababbbbbbacabccccc'))
+##print(N.accept('ababbbbbbaabccc'))
+##print()
+##print("False casese")
+##print(N.accept('abbbbcabccccc'))
+##print(N.accept('ababbbbbbaabcccc'))
 
 
-###########################TEST construct FA from sub expr -> (ab)(cc) #correct
-##expr = ['a','b']
-##expr2 = ['c','c']
-##fa = exprToFA(expr)
-##fa.show()
-##fa2 = exprToFA(expr2)
-##fa2.show()
-##fa3 = exprToFA([fa,fa2])
-###((ab)(cc))*
-##fa3.show()
-##fa4 = exprToFA([fa3,'*'])
-##fa4.show()
+##regex = "((Ab*)*d*e|f*)"
+##fa = getFA(regex)
+##N = NFA(fa.Q, fa.Sigma, fa.delta, fa.q0, fa.F)
+##print("True casese")
+##print(N.accept('Ae'))
+##print(N.accept('AAAAAbbbbbddddde'))
+##print(N.accept('fffffff'))
+##print(N.accept('f'))
+##print(N.accept('de'))
+##print(N.accept('e'))
+##print(N.accept(''))
+##print()
+##print("False casese")
+##print(N.accept('fe'))
+##print(N.accept('ee'))
+##print(N.accept('dddee'))
+##print(N.accept('Abbbdddee'))
+##print(N.accept('dbe'))
 
 
-###########################TEST ExclusiveOR (aa|bb|)  #correct
-##fa = exprToFA(['a'])
-##expr = ['a','a','|','b','b']
-##out_fa = exclusiveOr(expr)
-##out_fa.show()
-
-#expr = "(0|1)|(1)*"
-##fa = exprToFA(['0','|','1'])
-##fa2 = exprToFA(['1'])
-##fa3= exprToFA([fa2,'*'])
-###[fa,'|',fa3]
-##fa4 = exprToFA([fa,'|',fa3])
-##fa4.show()
-
-###########################TEST ExclusiveOR (12*2)  #correct
-##expr = ['2']
-##fa = exprToFA(expr)
-##fa.show()
-##
-##expr2 = [fa,'*']
-##fa2 = exprToFA(expr2)
-##fa2.show()
-##
-##expr3 = ['1',fa2,'2']
-##fa3 = exprToFA(expr3)
-##fa3.show()
-
-###########################   REGEX  FINAL SYSTEM TESTING
-
-#regex_expr = "12*2" #correct
-#regex_expr = "(123)12" #correct
-#regex_expr ="aa|bb" #correct
-#regex_expr = "1(12*3|11)12(14)*"
-#regex_expr = "(0|1)|(1)*"
-#regex_expr = "(0|1|2|3|4|5|6|7|8|9)|(1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)"
-#regex_expr = "(0|1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*.|.(0|1|2|3|4|5|6||8|9)(0|1|2|3|4|5|6|7|8|9)*|(0|1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*.(0|1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*"
-#regex_expr = "(12*333)*5(1|2)"
-#regex_expr = "1(1|2)2*"
-#regex_expr = "(1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*"
-#regex_expr = "(a|bc)"
-
-regex_expr = "1|(1|2)(0|1|2)"
-
-fa = getFA(regex_expr)
-fa.show()
+##regex = "(ad|(b|c)*)*"
+##fa = getFA(regex)
+##N = NFA(fa.Q, fa.Sigma, fa.delta, fa.q0, fa.F)
+##print("True casese")
+##print(N.accept(''))
+##print(N.accept('ad'))
+##print(N.accept('b'))
+##print(N.accept('bbbbbbbbbb'))
+##print(N.accept('c'))
+##print(N.accept('ccccccccccc'))
+##print(N.accept('adb'))
+##print(N.accept('adbbbbbbb'))
+##print(N.accept('adcccccccc'))
+##print(N.accept('adbbbbbbb'))
+##print(N.accept('adccccccccbbbbb'))
+##print(N.accept('bbccadad'))
+##print(N.accept('bcad'))
+##print()
+##print("False casese")
+##print(N.accept('da'))
+##print(N.accept('ada'))
+##print(N.accept('adda'))
+##print(N.accept('ca'))
+##print(N.accept('ba'))
+##print(N.accept('bbbbbca'))
+##print(N.accept('bcccccccca'))
+##print(N.accept('dbbbbccccc'))
