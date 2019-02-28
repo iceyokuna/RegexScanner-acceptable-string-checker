@@ -271,15 +271,16 @@ for line in content:
     fa_list.append(dfa)
 
 #show classes
-for fa in fa_list:
-    print(fa.name, end = '    ')
-print()
+print("Input number that you want to check acceptance (select class) : ")
+for i in range(len(fa_list)):
+    print("   ",i, "    ", fa_list[i].name)
 
-#scanner execution
-output = []
-#input_string = "123.1234567890"
+select = eval(input("input [select class]: "))
+dfa = fa_list[select]
+
 while(1):
     input_string = input("Input string : ")
-    tokenize(fa_list, input_string , output) #token by refence (recursively)
-    print(output,'\n')
-    output = []
+    if(dfa.accept(input_string)):
+        print(input_string, "  :  accept\n")
+    else:
+        print(input_string, "  :  reject\n")

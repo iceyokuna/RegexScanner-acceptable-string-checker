@@ -279,7 +279,8 @@ print()
 output = []
 #input_string = "123.1234567890"
 while(1):
-    input_string = input("Input string : ")
+    input_string = input("input string : ")
     tokenize(fa_list, input_string , output) #token by refence (recursively)
     print(output,'\n')
     output = []
+

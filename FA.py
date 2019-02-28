@@ -1,3 +1,26 @@
+#DFA
+class DFA:
+    def __init__(self,Q,Sigma, delta, q0 ,F):
+        self.Q = Q
+        self.Sigma = Sigma
+        self.delta = delta
+        self.q0 = q0
+        self.F = F
+
+    def accept(self, string):
+        currentState = self.q0
+        try:
+            for char in string:
+                state = delta[(currentState, char)]
+                currentState = state
+        except(KeyError):
+            print("Error" , end = " ")
+        if(currentState in F):
+            return True
+        return False      
+
+
+#NFA
 class NFA:
   def __init__(self, Q, Sigma, delta, q0, F):
     self.name = ""
@@ -44,8 +67,10 @@ class NFA:
           next_states = next_states.union(closure_next_state)
       current_states = next_states
     return any(q in self.F for q in current_states)
+
+  def get_DFA(self , NFA): #mock for debuging
+    return NFA
     
-'''
   # NFA to DFA
   def convert_to_DFA(self):
     Q_DFA = set()
@@ -72,6 +97,6 @@ class NFA:
     F_DFA = set(q for q in Q_DFA if any(qf in q for qf in self.F))
 
     return DFA(Q_DFA, Sigma, delta_DFA, q0_DFA, F_DFA)
-'''
+
 
 
